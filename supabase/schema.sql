@@ -322,7 +322,7 @@ declare v public.table_sessions; v_sub numeric; v_svc numeric; v_vat numeric;
 begin
   select coalesce(sum(line_total), 0) into v_sub
     from public.order_items where session_id = p_session_id and status <> 'cancelled';
-  select * into v strict from public.table_sessions where id = p_session_id;
+  select * into strict v from public.table_sessions where id = p_session_id;
   v_svc := round(v_sub * v_svc_pct / 100, 2);
   v_vat := round((v_sub + v_svc) * v_vat_pct / 100, 2);
   update public.table_sessions set

@@ -1,0 +1,15 @@
+{
+  "name": "tsuki-sushi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "serve -l 5173 .",
+    "images": "node tools/gen-images.mjs",
+    "test": "node tools/test-schema.mjs"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^17.0.0",
+    "pg": "^8.13.0",
+    "serve": "^14.2.0"
+  }
+}
