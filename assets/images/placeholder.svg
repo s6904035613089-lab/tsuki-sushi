@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img">
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a3154"/><stop offset="1" stop-color="#151a33"/>
+    </linearGradient>
+    <radialGradient id="dish" cx="50%" cy="46%" r="52%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ece4d6"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#1c1430" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="200" cy="205" r="140" fill="url(#dish)" opacity=".96"/>
+  <circle cx="200" cy="205" r="140" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="3"/>
+<g filter="url(#soft)"><circle cx="200" cy="205" r="76" fill="#dcd3c3"/>
+   <text x="200" y="222" text-anchor="middle" font-size="64" opacity=".5">🍣</text></g>
+</svg>

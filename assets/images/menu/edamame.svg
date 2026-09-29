@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img">
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#40355a"/><stop offset="1" stop-color="#201a38"/>
+    </linearGradient>
+    <radialGradient id="dish" cx="50%" cy="46%" r="52%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ece4d6"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#1c1430" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="200" cy="205" r="140" fill="url(#dish)" opacity=".96"/>
+  <circle cx="200" cy="205" r="140" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="3"/>
+<g filter="url(#soft)"><g transform="rotate(-20 251.17080812440005 229.84426882938155)">
+        <path d="M201.17080812440005 241.84426882938155 q50 -50 100 0 q-50 24 -100 0z" fill="#7cb342"/>
+        <path d="M207.17080812440005 235.84426882938155 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0" fill="none" stroke="#c9a06a" stroke-width="4"/>
+      </g><g transform="rotate(4 182.51822129697885 247.21469712747262)">
+        <path d="M132.51822129697885 259.2146971274726 q50 -50 100 0 q-50 24 -100 0z" fill="#7cb342"/>
+        <path d="M138.51822129697885 253.21469712747262 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0" fill="none" stroke="#c9a06a" stroke-width="4"/>
+      </g><g transform="rotate(28 138.02485845332882 206.24584882017908)">
+        <path d="M88.02485845332882 218.24584882017908 q50 -50 100 0 q-50 24 -100 0z" fill="#7cb342"/>
+        <path d="M94.02485845332882 212.24584882017908 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0" fill="none" stroke="#c9a06a" stroke-width="4"/>
+      </g><g transform="rotate(52 179.17903476959262 163.555279788242)">
+        <path d="M129.17903476959262 175.555279788242 q50 -50 100 0 q-50 24 -100 0z" fill="#7cb342"/>
+        <path d="M135.17903476959262 169.555279788242 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0" fill="none" stroke="#c9a06a" stroke-width="4"/>
+      </g><g transform="rotate(76 249.10707735569963 178.1399054347247)">
+        <path d="M199.10707735569963 190.1399054347247 q50 -50 100 0 q-50 24 -100 0z" fill="#7cb342"/>
+        <path d="M205.10707735569963 184.1399054347247 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0 q12 -14 18 0" fill="none" stroke="#c9a06a" stroke-width="4"/>
+      </g></g>
+</svg>

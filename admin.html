@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>หลังบ้าน | Tsuki Sushi</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/images/logo-mark.svg">
+<link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="topbar"></div>
+
+<main class="container py-4">
+  <div class="d-flex flex-wrap gap-2 mb-4" id="tabs"></div>
+  <div id="view"><div class="spinner-t"></div></div>
+</main>
+
+<!-- ============================================ ฟอร์มเมนู -->
+<div class="modal fade" id="itemModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius:24px;border:0">
+      <form id="itemForm" onsubmit="saveItem(event)">
+        <input type="hidden" name="id"><input type="hidden" name="image_url">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="imTitle">เพิ่มเมนูใหม่</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">รูปเมนู</label>
+              <img id="imgPreview" class="w-100 rounded-3 mb-2" style="aspect-ratio:1;object-fit:cover;background:var(--paper-2)"
+                   onerror="this.src='assets/images/placeholder.svg'">
+              <label class="btn btn-outline-t btn-sm w-100">
+                📤 อัปโหลดรูป
+                <input type="file" accept="image/*" hidden onchange="uploadImg(this)">
+              </label>
+              <div class="small text-muted-t mt-2">หรือเลือกจากคลังรูปในโปรเจกต์</div>
+              <div id="imgPicker" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:190px;overflow:auto;margin-top:6px"></div>
+            </div>
+            <div class="col-md-8">
+              <div class="row g-2">
+                <div class="col-8"><label class="form-label">ชื่อเมนู (ไทย) *</label>
+                  <input class="form-control" name="name" required></div>
+                <div class="col-4"><label class="form-label">รหัส *</label>
+                  <input class="form-control" name="code" required placeholder="N09"></div>
+                <div class="col-8"><label class="form-label">ชื่ออังกฤษ</label>
+                  <input class="form-control" name="name_en"></div>
+                <div class="col-4"><label class="form-label">หมวด</label>
+                  <select class="form-select" name="category_id" id="catSelect"></select></div>
+                <div class="col-4"><label class="form-label">ราคา (฿) *</label>
+                  <input class="form-control" type="number" name="price" min="0" step="1" required></div>
+                <div class="col-4"><label class="form-label">ต้นทุน (฿)</label>
+                  <input class="form-control" type="number" name="cost" min="0" step="1"></div>
+                <div class="col-4"><label class="form-label">เวลาทำ (นาที)</label>
+                  <input class="form-control" type="number" name="prep_minutes" min="1" value="10"></div>
+                <div class="col-12"><label class="form-label">คำอธิบาย</label>
+                  <textarea class="form-control" name="description" rows="3"></textarea></div>
+                <div class="col-12 d-flex flex-wrap gap-3">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="is_popular" id="cbPop">
+                    <label class="form-check-label small" for="cbPop">⭐ ยอดนิยม</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="is_raw" id="cbRaw">
+                    <label class="form-check-label small" for="cbRaw">ของดิบ</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="is_spicy" id="cbSpicy">
+                    <label class="form-check-label small" for="cbSpicy">เผ็ด</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="available" id="cbAvail" checked>
+                    <label class="form-check-label small" for="cbAvail">เปิดขาย</label></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="submit" class="btn btn-red px-4">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ modal ทั่วไป -->
+<div class="modal fade" id="gModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" id="gDialog">
+    <div class="modal-content" style="border-radius:24px;border:0">
+      <div class="modal-header border-0"><h5 class="modal-title" id="gTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="gBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/vendor/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor/supabase.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/admin.js"></script>
+<script>
+(async () => {
+  await API.init();
+  mountTopbar('admin');
+  if (!API.require('admin', [])) return;
+  adminStart();
+})();
+</script>
+</body>
+</html>

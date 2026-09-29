@@ -1,0 +1,9 @@
+# Tsuki Sushi
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /kitchen
+Disallow: /cashier
+Disallow: /host
+Disallow: /menu
+Disallow: /login

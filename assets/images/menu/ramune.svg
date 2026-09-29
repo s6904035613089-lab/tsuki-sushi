@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img">
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#26405a"/><stop offset="1" stop-color="#141f33"/>
+    </linearGradient>
+    <radialGradient id="dish" cx="50%" cy="46%" r="52%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ece4d6"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#1c1430" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="200" cy="205" r="140" fill="url(#dish)" opacity=".96"/>
+  <circle cx="200" cy="205" r="140" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="3"/>
+
+  <g filter="url(#soft)">
+    <path d="M168 96 h64 v34 q0 12 12 22 q18 15 18 40 v96 a26 26 0 0 1 -26 26 h-72 a26 26 0 0 1 -26 -26 v-96 q0 -25 18 -40 q12 -10 12 -22z" fill="#7ec8e3" opacity=".9"/>
+    <path d="M168 96 h64 v20 h-64z" fill="#c9d3dd"/>
+    <path d="M160 200 h80" stroke="#ffffff" stroke-opacity=".5" stroke-width="6"/>
+    <ellipse cx="180" cy="250" rx="10" ry="26" fill="#ffffff" opacity=".28"/>
+  </g>
+</svg>

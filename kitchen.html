@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>หน้าจอครัว | Tsuki Sushi</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/images/logo-mark.svg">
+<link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="kitchen">
+
+<div id="topbar"></div>
+
+<main class="container-fluid px-3 py-3">
+  <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+    <h4 class="mb-0">👨‍🍳 หน้าจอครัว</h4>
+    <div class="d-flex gap-2">
+      <span class="tag tag-new">รอรับ <b id="cntPending">0</b></span>
+      <span class="tag tag-cooking">กำลังทำ <b id="cntCooking">0</b></span>
+      <span class="tag tag-done">เสิร์ฟวันนี้ <b id="cntServed">0</b></span>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="small" id="liveDot" style="color:#7fd18c">● เชื่อมต่อแล้ว</span>
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="soundOn" checked>
+        <label class="form-check-label small" for="soundOn">🔔 เสียงเตือน</label>
+      </div>
+      <button class="btn btn-ghost btn-sm text-white-50" onclick="kdsLoad()">🔄 รีเฟรช</button>
+    </div>
+  </div>
+
+  <div id="kds"><div class="spinner-t"></div></div>
+</main>
+
+<script src="assets/vendor/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor/supabase.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/kitchen.js"></script>
+<script>
+(async () => {
+  await API.init();
+  mountTopbar('kitchen');
+  if (!API.require('kitchen', ['kitchen', 'waiter'])) return;
+  kdsStart();
+})();
+</script>
+</body>
+</html>
