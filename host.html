@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>เปิดโต๊ะ / สร้าง QR | Tsuki Sushi</title>
+<title>สร้าง QR สั่งอาหาร | Tsuki Sushi</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/images/logo-mark.svg">
 <link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
@@ -15,35 +15,40 @@
 <div id="topbar"></div>
 
 <main class="container py-4">
-  <div class="row g-4">
-    <!-- ============================ ซ้าย: เลือกโต๊ะ -->
-    <div class="col-lg-7">
-      <h4 class="mb-1">เปิดโต๊ะให้ลูกค้า</h4>
-      <p class="text-muted-t small mb-3">เลือกโต๊ะ → ใส่จำนวนคน → กดเปิดโต๊ะ ระบบจะสร้าง QR ให้ลูกค้าสแกนสั่งอาหาร</p>
+  <div class="text-center mb-4">
+    <h4 class="mb-1">🪑 เริ่มสั่งอาหาร</h4>
+    <p class="text-muted-t small mb-0">เลือกโต๊ะ → ใส่จำนวนคน → รับ QR ไปสแกนเพื่อสั่งอาหาร</p>
+  </div>
 
+  <div class="row g-4">
+    <!-- ============================ ซ้าย: ขั้นตอน -->
+    <div class="col-lg-7">
       <div class="panel mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h6 class="mb-0">1. เลือกโต๊ะ</h6>
-          <div class="small text-muted-t">
-            <span class="tag tag-out">แดง</span> = มีลูกค้าอยู่
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0"><span class="tag tag-new">ขั้นที่ 1</span> เลือกเลขโต๊ะ</h6>
+          <div class="small text-muted-t"><span class="tag tag-out">แดง</span> = มีลูกค้าอยู่แล้ว</div>
         </div>
         <div id="zones"><div class="spinner-t"></div></div>
       </div>
 
-      <div class="panel">
-        <h6 class="mb-3">2. จำนวนลูกค้า</h6>
+      <div class="panel" id="step2">
+        <h6 class="mb-3"><span class="tag tag-new">ขั้นที่ 2</span> จำนวนคน</h6>
         <div class="d-flex align-items-center gap-2 flex-wrap mb-3" id="guestQuick"></div>
         <div class="d-flex align-items-center gap-3">
           <div class="stepper">
             <button class="step-btn" onclick="bumpGuests(-1)">−</button>
-            <input id="guests" class="form-control text-center" type="number" min="1" max="30" value="2" style="width:84px">
+            <input id="guests" class="form-control text-center" type="number" min="1" max="30" value="2"
+                   style="width:84px" oninput="renderGuestQuick();syncButton()">
             <button class="step-btn plus" onclick="bumpGuests(1)">+</button>
           </div>
           <span class="text-muted-t small">ท่าน</span>
         </div>
-        <button class="btn btn-red btn-lg w-100 mt-4" id="btnOpen" onclick="openTable()" disabled>
-          🪑 เปิดโต๊ะ &amp; สร้าง QR
+
+        <hr class="my-4">
+        <h6 class="mb-2"><span class="tag tag-new">ขั้นที่ 3</span> รับ QR</h6>
+        <div class="mb-3" id="pickInfo"><span class="text-muted-t">ยังไม่ได้เลือกโต๊ะ</span></div>
+        <button class="btn btn-red btn-lg w-100" id="btnOpen" onclick="openTable()" disabled>
+          📱 สร้าง QR สำหรับโต๊ะนี้
         </button>
         <div id="openErr" class="alert alert-danger py-2 small mt-3 d-none"></div>
       </div>
@@ -57,6 +62,14 @@
           <button class="btn btn-ghost btn-sm" onclick="loadAll()">🔄</button>
         </div>
         <div id="openList"><div class="spinner-t"></div></div>
+      </div>
+      <div class="panel mt-3 bg-paper-2" style="border-style:dashed">
+        <h6 class="mb-2">หลังได้ QR แล้ว</h6>
+        <ol class="small text-muted-t mb-0 ps-3" style="line-height:1.9">
+          <li>สแกน QR ด้วยกล้องมือถือ (หรือกด “เปิดหน้าลูกค้า” เพื่อทดลอง)</li>
+          <li>เลือกเมนู กด + ใส่ตะกร้า แล้วส่งออเดอร์เข้าครัว</li>
+          <li>สั่งเพิ่มได้เรื่อย ๆ ทานเสร็จกดเรียกเก็บเงิน</li>
+        </ol>
       </div>
     </div>
   </div>
@@ -80,8 +93,8 @@
           <button class="btn btn-outline-t flex-fill" onclick="copyLink()">🔗 คัดลอกลิงก์</button>
           <button class="btn btn-ink flex-fill" data-bs-dismiss="modal">เสร็จแล้ว</button>
         </div>
-        <div class="text-center mt-2">
-          <a class="small text-muted-t" id="qrOpenLink" target="_blank" rel="noopener">เปิดหน้าลูกค้าเพื่อทดสอบ ↗</a>
+        <div class="text-center mt-3">
+          <a class="btn btn-red w-100" id="qrOpenLink" target="_blank" rel="noopener">เปิดหน้าลูกค้าเลย →</a>
         </div>
       </div>
     </div>
@@ -99,7 +112,6 @@
 (async () => {
   await API.init();
   mountTopbar('host');
-  if (!API.require('host', ['waiter', 'cashier'])) return;
   loadAll();
 })();
 </script>

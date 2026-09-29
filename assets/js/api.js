@@ -111,7 +111,12 @@ const API = {
     return this.sb.storage.from('menu-images').getPublicUrl(path).data.publicUrl;
   },
 
-  /* ---------------------------------------------------- โต๊ะ / session (พนักงาน) */
+  /* ---------------------------------------------------- โต๊ะ / session */
+  /** รายชื่อโต๊ะ + สถานะว่าง/ไม่ว่าง — ใช้ได้โดยไม่ต้องล็อกอิน (หน้าสร้าง QR) */
+  async listTables() { return must(await this.sb.rpc('list_tables')); },
+  /** ขอ QR ของโต๊ะที่เปิดอยู่แล้ว */
+  async tableQR(tableNo) { return must(await this.sb.rpc('table_qr', { p_table_no: tableNo })); },
+
   async getTables() {
     return must(await this.sb.from('dining_tables').select('*').eq('active', true).order('table_no'));
   },

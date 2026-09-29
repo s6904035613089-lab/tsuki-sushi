@@ -333,13 +333,53 @@ begin
 end $$;
 
 -- =============================================================
---  เปิดโต๊ะ (พนักงาน) — คืน session พร้อม token สำหรับทำ QR
+--  รายชื่อโต๊ะ + สถานะว่าง/ไม่ว่าง (เปิดให้ทุกคนอ่าน — ใช้ในหน้าสร้าง QR)
+--  ไม่คืน token เพื่อไม่ให้ดึง QR ของโต๊ะอื่นไปใช้
+-- =============================================================
+create or replace function public.list_tables()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'table_no', t.table_no, 'seats', t.seats, 'zone', t.zone,
+           'busy',       s.id is not null,
+           'session_no', s.session_no,
+           'guests',     s.guests,
+           'status',     s.status,
+           'opened_at',  s.opened_at,
+           'has_orders', coalesce(s.item_cnt, 0) > 0
+         ) order by t.table_no), '[]'::jsonb)
+    from public.dining_tables t
+    left join lateral (
+      select ts.*, (select count(*) from public.order_items oi where oi.session_id = ts.id) as item_cnt
+        from public.table_sessions ts
+       where ts.table_id = t.id and ts.status in ('open','billing')
+       limit 1
+    ) s on true
+   where t.active;
+$$;
+
+/** ขอ QR ของโต๊ะที่เปิดอยู่แล้ว (กรณีทำ QR หาย / อยากพิมพ์ใหม่) */
+create or replace function public.table_qr(p_table_no text)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare t public.dining_tables; v public.table_sessions;
+begin
+  select * into t from public.dining_tables where upper(table_no) = upper(trim(p_table_no));
+  if t.id is null then raise exception 'ไม่พบโต๊ะ %', p_table_no; end if;
+  select * into v from public.table_sessions
+   where table_id = t.id and status in ('open','billing') limit 1;
+  if v.id is null then raise exception 'โต๊ะ % ยังไม่ได้เปิด', t.table_no; end if;
+  return jsonb_build_object('id', v.id, 'token', v.token, 'session_no', v.session_no,
+                            'guests', v.guests, 'opened_at', v.opened_at, 'status', v.status,
+                            'table_no', t.table_no, 'zone', t.zone);
+end $$;
+
+-- =============================================================
+--  เปิดโต๊ะ — กรอกเลขโต๊ะ + จำนวนคน แล้วได้ token ไปสร้าง QR
+--  เปิดให้ใช้ได้โดยไม่ต้องล็อกอิน (ถ้าพนักงานล็อกอินอยู่จะบันทึกว่าใครเปิด)
 -- =============================================================
 create or replace function public.open_table(p_table_no text, p_guests int default 2)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare v_table public.dining_tables; v public.table_sessions; s public.notify_settings;
 begin
-  if not public.is_staff() then raise exception 'ไม่มีสิทธิ์ — กรุณาเข้าสู่ระบบพนักงาน'; end if;
   select * into v_table from public.dining_tables where upper(table_no) = upper(trim(p_table_no));
   if v_table.id is null then raise exception 'ไม่พบโต๊ะ %', p_table_no; end if;
   if not v_table.active then raise exception 'โต๊ะ % ปิดใช้งานอยู่', v_table.table_no; end if;
@@ -365,18 +405,24 @@ begin
   return to_jsonb(v) || jsonb_build_object('table_no', v_table.table_no, 'zone', v_table.zone, 'seats', v_table.seats);
 end $$;
 
-/* ปิดโต๊ะโดยไม่คิดเงิน (ยกเลิก) */
+/* ปิดโต๊ะโดยไม่คิดเงิน (ยกเลิก)
+   พนักงาน: ยกเลิกได้เสมอ · คนทั่วไป: ยกเลิกได้เฉพาะโต๊ะที่ยังไม่มีรายการสั่ง (เปิดผิดโต๊ะ) */
 create or replace function public.cancel_session(p_session_id uuid, p_reason text default '')
 returns public.table_sessions language plpgsql security definer set search_path = public as $$
 declare v public.table_sessions;
 begin
-  if not public.is_staff() then raise exception 'ไม่มีสิทธิ์'; end if;
+  select * into v from public.table_sessions where id = p_session_id and status in ('open','billing');
+  if v.id is null then raise exception 'ไม่พบโต๊ะที่เปิดอยู่'; end if;
+  if not public.is_staff()
+     and exists (select 1 from public.order_items where session_id = v.id and status <> 'cancelled') then
+    raise exception 'โต๊ะนี้มีรายการสั่งอาหารแล้ว กรุณาเรียกพนักงานค่ะ';
+  end if;
+
   update public.table_sessions
      set status = 'cancelled', closed_by = auth.uid(), closed_at = now(),
          note = case when p_reason <> '' then p_reason else note end
-   where id = p_session_id and status in ('open','billing')
+   where id = p_session_id
    returning * into v;
-  if v.id is null then raise exception 'ไม่พบโต๊ะที่เปิดอยู่'; end if;
   update public.order_items set status = 'cancelled' where session_id = v.id and status <> 'done';
   update public.orders set status = 'cancelled' where session_id = v.id and status <> 'served';
   return v;
@@ -709,8 +755,10 @@ create policy "notify log staff"  on public.notification_log for select using (p
 grant execute on function public.session_by_token(text)            to anon, authenticated;
 grant execute on function public.place_order(text, jsonb, text)    to anon, authenticated;
 grant execute on function public.request_bill(text)                to anon, authenticated;
-grant execute on function public.open_table(text, int)             to authenticated;
-grant execute on function public.cancel_session(uuid, text)        to authenticated;
+grant execute on function public.list_tables()                     to anon, authenticated;
+grant execute on function public.table_qr(text)                    to anon, authenticated;
+grant execute on function public.open_table(text, int)             to anon, authenticated;
+grant execute on function public.cancel_session(uuid, text)        to anon, authenticated;
 grant execute on function public.set_order_status(uuid, order_status) to authenticated;
 grant execute on function public.set_item_status(uuid, item_status)   to authenticated;
 grant execute on function public.get_bill(uuid)                    to authenticated;

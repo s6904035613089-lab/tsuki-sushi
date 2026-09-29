@@ -60,9 +60,9 @@ function mountTopbar(active) {
         <img src="assets/images/logo.svg" alt="Tsuki Sushi">
       </a>
       <nav class="d-flex align-items-center gap-1 flex-grow-1 overflow-auto">
-        ${link('host.html', '🪑 เปิดโต๊ะ / QR', 'host', ['waiter', 'cashier'])}
-        ${link('kitchen.html', '👨‍🍳 หน้าครัว', 'kitchen', ['kitchen', 'waiter'])}
-        ${link('cashier.html', '💳 แคชเชียร์', 'cashier', ['cashier'])}
+        ${link('host.html', '🪑 เริ่มสั่งอาหาร / QR', 'host', ['waiter', 'cashier'])}
+        ${s ? link('kitchen.html', '👨‍🍳 หน้าครัว', 'kitchen', ['kitchen', 'waiter']) : ''}
+        ${s ? link('cashier.html', '💳 แคชเชียร์', 'cashier', ['cashier']) : ''}
         ${s && s.role === 'admin' ? link('admin.html', '⚙️ หลังบ้าน', 'admin') : ''}
       </nav>
       <div class="d-flex align-items-center gap-2 flex-shrink-0">

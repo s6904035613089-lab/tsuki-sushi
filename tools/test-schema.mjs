@@ -70,10 +70,24 @@ try {
   const { rows: [st] } = await db.query('select role from public.staff where id = $1', [u.id]);
   st.role === 'admin' ? ok('ผู้ใช้คนแรกได้สิทธิ์ admin อัตโนมัติ') : bad('สิทธิ์ผิด: ' + st.role);
 
-  /* ---------- เปิดโต๊ะ ---------- */
+  /* ---------- ขั้นที่ 1: ผู้ใช้กรอกเลขโต๊ะ + จำนวนคน เองได้โดยไม่ล็อกอิน ---------- */
+  await as(null);
+  const { rows: [{ list_tables: tl }] } = await db.query('select public.list_tables()');
+  (tl.length === 14 && tl.every(t => t.token === undefined))
+    ? ok(`list_tables (ไม่ล็อกอิน) เห็น ${tl.length} โต๊ะ และไม่มี token หลุดออกมา`)
+    : bad('list_tables ผิด');
+
   const { rows: [{ open_table: s }] } = await db.query("select public.open_table('A3', 4)");
-  ok(`เปิดโต๊ะ ${s.table_no} → ${s.session_no}`);
+  ok(`ผู้ใช้ทั่วไปเปิดโต๊ะ ${s.table_no} เองได้ → ${s.session_no}`);
   await mustFail('กันเปิดโต๊ะซ้ำ', () => db.query("select public.open_table('A3', 2)"));
+  await mustFail('เปิดโต๊ะที่ไม่มีอยู่จริงไม่ได้', () => db.query("select public.open_table('Z9', 2)"));
+
+  const { rows: [{ table_qr: qr }] } = await db.query("select public.table_qr('A3')");
+  qr.token === s.token ? ok('ขอ QR เดิมของโต๊ะที่เปิดอยู่ได้ (ทำ QR หาย)') : bad('table_qr คืน token ผิด');
+
+  const { rows: [{ list_tables: tl2 }] } = await db.query('select public.list_tables()');
+  tl2.find(t => t.table_no === 'A3').busy === true ? ok('โต๊ะที่เปิดแล้วขึ้นสถานะไม่ว่าง') : bad('สถานะโต๊ะผิด');
+  await as(u.id);
 
   /* ---------- ลูกค้าสั่งอาหาร (ไม่ล็อกอิน) ---------- */
   const { rows: m } = await db.query("select id from public.menu_items where code in ('N01','A01','B01') order by code");
@@ -140,6 +154,21 @@ try {
   await as(u.id);
   await db.query("select public.open_table('A3', 2)");
   ok('เปิดโต๊ะเดิมรอบใหม่ได้หลังปิดบิล');
+
+  /* ---------- ยกเลิกโต๊ะโดยผู้ใช้ทั่วไป ---------- */
+  await as(null);
+  const { rows: [{ open_table: s3 }] } = await db.query("select public.open_table('A4', 2)");
+  await db.query('select public.cancel_session($1, $2)', [s3.id, 'เปิดผิดโต๊ะ']);
+  ok('ผู้ใช้ยกเลิกโต๊ะที่ยังไม่ได้สั่งอาหารได้ (เปิดผิดโต๊ะ)');
+
+  const { rows: [{ open_table: s4 }] } = await db.query("select public.open_table('A5', 2)");
+  await db.query('select public.place_order($1,$2::jsonb,$3)',
+    [s4.token, JSON.stringify([{ menu_item_id: m[0].id, qty: 1 }]), '']);
+  await mustFail('ผู้ใช้ยกเลิกโต๊ะที่สั่งอาหารแล้วไม่ได้',
+    () => db.query('select public.cancel_session($1, $2)', [s4.id, 'ลอง']));
+  await as(u.id);
+  await db.query('select public.cancel_session($1, $2)', [s4.id, 'พนักงานยกเลิก']);
+  ok('แต่พนักงานยกเลิกได้');
 
   /* ---------- รายงาน ---------- */
   const { rows: [rep] } = await db.query('select * from public.v_daily_sales');
