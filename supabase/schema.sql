@@ -11,7 +11,6 @@
 --   ทุกขั้น  → แจ้งเตือนเข้า Telegram ผ่าน pg_net
 -- =============================================================
 
-create extension if not exists pgcrypto;
 create extension if not exists pg_net with schema extensions;
 
 -- ------------------------------------------------------------- ENUM
@@ -224,10 +223,13 @@ returns text language sql volatile as $$
          lpad(nextval('public.session_no_seq')::text, 4, '0');
 $$;
 
-/** โทเคนสำหรับ QR — สุ่ม 16 ตัวอักษร (a-z0-9) เดาไม่ได้ */
+/** โทเคนสำหรับ QR — สุ่ม 20 ตัวอักษร (hex ≈ 80 bit) เดาไม่ได้
+    ใช้ gen_random_uuid() ซึ่งเป็นฟังก์ชันแกนของ PostgreSQL 13+
+    (ไม่พึ่ง pgcrypto เพราะบน Supabase อยู่คนละ schema กับ search_path ของฟังก์ชันนี้) */
 create or replace function public.new_token()
 returns text language sql volatile as $$
-  select lower(translate(encode(gen_random_bytes(12), 'base64'), '+/=', 'xyz'));
+  select substr(replace(gen_random_uuid()::text, '-', '') ||
+                replace(gen_random_uuid()::text, '-', ''), 1, 20);
 $$;
 
 /* สร้างแถว staff อัตโนมัติเมื่อมีผู้ใช้ใหม่ (คนแรก = admin) */
