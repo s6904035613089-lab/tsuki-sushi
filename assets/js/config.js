@@ -14,8 +14,8 @@ const TS_CONFIG = {
      คีย์นี้เปิดเผยได้ (ออกแบบมาให้ใช้ฝั่ง browser)
      ความปลอดภัยอยู่ที่ Row Level Security ใน supabase/schema.sql
      ----------------------------------------------------------- */
-  SUPABASE_URL: '',
-  SUPABASE_KEY: '',
+  SUPABASE_URL: 'https://djjifvixnxjnyhikjhhf.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_RRR9li4S8bhIw6J9ole0qQ_S_edyz6m',
 
   /* ค่าสำรองถ้าตาราง settings ยังไม่มีข้อมูล */
   serviceChargePct: 10,
